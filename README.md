@@ -1,4 +1,4 @@
-# QCompress
+# Rigetti Hackathon Project: QCompress
 QCompress is an implementation of the quantum autoencoder using Forest and OpenFermion.
 
 ### Objective
