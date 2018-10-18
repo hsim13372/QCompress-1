@@ -13,7 +13,7 @@ class quantum_autoencoder:
     """Class for the quantum autoencoder (QAE)"""
     def __init__(self, n_qubits_in, n_qubits_latent_space, state_preparation_circuits,
                  state_preparation_circuits_dag, training_circuit, minimizer=None,
-                 minimizer_args=[], minimizer_kwargs={}, n_samples=5000, gate_noise=None,
+                 minimizer_args=[], minimizer_kwargs={}, n_samples=5000, device=None, gate_noise=None,
                  meas_noise=None, qvm_random_seed=None, verbose=True, print_interval=10, display_progress=False):
         """Initializes quantum autoencoder.
 
@@ -39,6 +39,8 @@ class quantum_autoencoder:
             Arguments for keyword args
         n_samples : int, optional (default: 5000)
             Number of circuit runs for a given circuit
+        device : pyquil.device.Device
+            Device object with hardware specs + noise model
         gate_noise : list or numpy.ndarray, optional
             Probabilities of gate being applied to every gate after each gate application, [Px, Py, Pz]
         meas_noise : list or numpy.ndarray, optional
@@ -90,13 +92,18 @@ class quantum_autoencoder:
 
         # QVM noise setting
         self.n_samples = n_samples
+        self.device = device
         self.gate_noise = gate_noise
         self.meas_noise = meas_noise
         self.qvm_random_seed = qvm_random_seed
-        self.connection = api.QVMConnection(gate_noise=self.gate_noise,
-                                            measurement_noise=self.meas_noise,
-                                            random_seed=self.qvm_random_seed)
-        
+
+        if self.device is not None:
+            self.connection = api.QVMConnection(device=self.device)
+        else:
+            self.connection = api.QVMConnection(gate_noise=self.gate_noise,
+                                                measurement_noise=self.meas_noise,
+                                                random_seed=self.qvm_random_seed)
+
         # Data setting
         self.optimized_params = None
         self.verbose = verbose
